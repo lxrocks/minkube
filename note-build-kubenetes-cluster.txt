@@ -1,0 +1,59 @@
+On Kubernetes documentation.
+
+search for kubeadm init
+
+1.  kubeadm init
+- install software
+- network - install driver
+- .kube/config
+- kubeadm join ---- output for the worker
+
+2. create config
+    mkdir -p $HOME/.kube
+    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+3. kubectl -- to create the network plugin use the docs.  Kubeadm command
+   will output link to plugins
+
+   Verify with 'kubectl get nodes'
+   Master node should be in a ready state
+
+4. Kubeadm join   on the worker
+
+kubeadm init and join needs to be run as root
+
+
+######## DO IT ################
+Actual commans for my install
+###############################
+
+### Set POD advertise and CIDR addresses for the init command
+
+export API_ADV_ADDRESS="10.8.8.10"
+export POD_CIDR="172.18.0.0/16"
+
+env | egrep "POD|API"
+
+sudo kubeadm init --pod-network-cidr $POD_CIDR --apiserver-advertise-address $API_ADV_ADDRESS | tee /home/vagrant/kubeadm-init.out
+
+# To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+sudo kubeadm join 10.8.8.10:6443 --token 2fj1tw.xip76oxvf797aaol \
+    --discovery-token-ca-cert-hash sha256:ad7b1c692aa48a9801058d2e2d650e58d45a5c3647686fa187784d773cb6e242 
+
+
+### setup kubectl completion
+
+sourc <(kubectl completions bash)
+kubectl completion bash >>#HOME/.bashrc
